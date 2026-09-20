@@ -1,71 +1,105 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>GymPay Manager</title>
-<style>
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#f6f7f9;color:#17181a}
-.wrap{max-width:900px;margin:auto;padding:24px}.brand{font-size:25px;font-weight:800;margin-bottom:18px}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card{background:white;border:1px solid #e2e4e8;border-radius:16px;padding:16px}.label{font-size:13px;color:#68707a}.value{font-size:25px;font-weight:800;margin-top:5px}
-.form{display:flex;gap:10px;margin:18px 0}.form input,.search{border:1px solid #d7dbe0;border-radius:11px;padding:12px;background:white;font-size:15px}.form input:first-child{flex:1}.form input:nth-child(2){width:150px}
-button{border:0;border-radius:11px;padding:11px 15px;font-weight:700;cursor:pointer}.add{background:#17181a;color:white}.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:20px 0 10px}.member{background:white;border:1px solid #e2e4e8;border-radius:14px;padding:15px;display:flex;justify-content:space-between;align-items:center;margin:9px 0}.name{font-weight:750}.sub{font-size:13px;color:#68707a;margin-top:3px}.paid{background:#e8f5e9;color:#176b2c}.pending{background:#fff1d6;color:#805b00}
-@media(max-width:650px){.wrap{padding:16px}.grid{grid-template-columns:repeat(2,1fr)}.form{flex-wrap:wrap}.form input:nth-child(2){width:100%}.form button{width:100%}.bar{align-items:stretch;flex-direction:column}.search{width:100%}.member{align-items:flex-start;gap:12px;flex-direction:column}.member button{width:100%}}
-</style>
-</head>
-<body>
-<div class="wrap">
-<div class="brand">🏋️ GymPay Manager</div>
-<div class="grid">
-<div class="card"><div class="label">Members</div><div class="value" id="count">0</div></div>
-<div class="card"><div class="label">Paid</div><div class="value" id="paid">0</div></div>
-<div class="card"><div class="label">Collected</div><div class="value" id="collected">₹0</div></div>
-<div class="card"><div class="label">Pending</div><div class="value" id="pending">₹0</div></div>
-</div>
-<div class="form">
-<input id="name" placeholder="Member name">
-<input id="fee" type="number" min="0" placeholder="Monthly fee">
-<button class="add" id="add">+ Add Member</button>
-</div>
-<div class="bar"><h3 style="margin:0">September 2026 Payments</h3><input class="search" id="search" placeholder="Search member"></div>
-<div id="list"></div><p id="empty" style="color:#68707a">No members yet. Add your first member.</p>
-</div>
-<script>
-const members=[]
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-const $=id=>document.getElementById(id);
-const money=n=>"₹"+Number(n).toLocaleString("en-IN");
-function esc(s){return s.replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]))}
-function render(){
- const q=$("search").value.trim().toLowerCase();
- const shown=members.filter(m=>m.name.toLowerCase().includes(q));
- const collected=members.filter(m=>m.paid).reduce((a,m)=>a+m.fee,0);
- const pending=members.filter(m=>!m.paid).reduce((a,m)=>a+m.fee,0);
- $("count").textContent=members.length;
- $("paid").textContent=members.filter(m=>m.paid).length;
- $("collected").textContent=money(collected);
- $("pending").textContent=money(pending);
- $("list").innerHTML=shown.map(m=>{
-   const i=members.indexOf(m);
-   return `<div class="member"><div><div class="name">${esc(m.name)}</div><div class="sub">Monthly fee: ${money(m.fee)}</div></div>
-   <button data-i="${i}" class="${m.paid?"paid":"pending"}">${m.paid?"✓ PAID":"⏳ MARK PAID"}</button></div>`;
- }).join("");
- $("empty").style.display=shown.length?"none":"block";
+<title>GymPay Manager</title>
+
+<style>
+*{
+  box-sizing:border-box;
 }
-$("add").onclick=()=>{
- const name=$("name").value.trim(),fee=Number($("fee").value);
- if(!name||!Number.isFinite(fee)||fee<0)return;
- members.push({name,fee,paid:false});
- $("name").value="";$("fee").value="";render();
-};
-$("search").oninput=render;
-$("list").onclick=e=>{
- const b=e.target.closest("button[data-i]");
- if(!b)return;
- members[Number(b.dataset.i)].paid=!members[Number(b.dataset.i)].paid;
- render();
-};
-render();
-</script>
-</body>
-</html>
+
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#f5f6f8;
+  color:#17181a;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+
+.header{
+  font-size:26px;
+  font-weight:bold;
+  margin-bottom:20px;
+}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+
+.card{
+  background:white;
+  padding:16px;
+  border-radius:15px;
+  border:1px solid #ddd;
+}
+
+.label{
+  font-size:13px;
+  color:#666;
+}
+
+.value{
+  font-size:24px;
+  font-weight:bold;
+  margin-top:6px;
+}
+
+.form{
+  background:white;
+  padding:15px;
+  border-radius:15px;
+  margin-top:20px;
+  display:flex;
+  gap:10px;
+}
+
+input{
+  padding:12px;
+  border:1px solid #ccc;
+  border-radius:10px;
+  font-size:15px;
+}
+
+#name{
+  flex:1;
+}
+
+#fee{
+  width:130px;
+}
+
+button{
+  border:0;
+  padding:12px 16px;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.add{
+  background:#17181a;
+  color:white;
+}
+
+.search{
+  width:100%;
+  margin:18px 0 10px;
+}
+
+.member{
+  background:white;
+  padding:15px;
+  border-radius:14px;
+  border:1px solid #ddd;
+  margin:10px 0;
+  display
