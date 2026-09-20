@@ -32,10 +32,7 @@ button{border:0;border-radius:11px;padding:11px 15px;font-weight:700;cursor:poin
 </div>
 <script>
 const members=[
- {name:"Rahul",fee:1000,paid:true},
- {name:"Amit",fee:1000,paid:false},
- {name:"Sneha",fee:800,paid:true}
-];
+
 const $=id=>document.getElementById(id);
 const money=n=>"₹"+Number(n).toLocaleString("en-IN");
 function esc(s){return s.replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]))}
